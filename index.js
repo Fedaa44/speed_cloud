@@ -13,9 +13,13 @@ app.get('/data', async (req, res) => {
   }
 
   try {
-    // استخدام Nominatim لتحديد اسم الشارع
+    // استخدام Nominatim لتحديد اسم الشارع + إضافة User-Agent
     const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
-    const response = await axios.get(nominatimUrl);
+    const response = await axios.get(nominatimUrl, {
+      headers: {
+        'User-Agent': 'speed-cloud-app'  // 👈 مهم لتجنب 403
+      }
+    });
     const street = response.data.address.road || 'Unknown Street';
 
     // تحديد السرعة المسموحة (مثال: حسب اسم الشارع)
@@ -25,13 +29,14 @@ app.get('/data', async (req, res) => {
     };
     const speed_limit = speedLimits[street] || 60;
 
-    const violation = parseInt(speed) > speed_limit;
-    const warning = parseInt(speed) >= speed_limit - 5;
+    const speedValue = parseInt(speed);
+    const violation = speedValue > speed_limit;
+    const warning = speedValue >= speed_limit - 5;
 
     // حفظ آخر البيانات
     latestData = {
       location: { lat, lon },
-      speed: parseInt(speed),
+      speed: speedValue,
       street,
       speed_limit,
       violation,
@@ -43,7 +48,7 @@ app.get('/data', async (req, res) => {
       .then(() => console.log('✅ Data sent to mobile app'))
       .catch(err => console.error('❌ Error sending to mobile app:', err.message));
 
-    // إرسال البيانات إلى الهاردوير (مثال: ESP8266 HTTP endpoint)
+    // إرسال البيانات إلى الهاردوير (ESP8266)
     await axios.post('http://192.168.1.50/hardware', latestData)
       .then(() => console.log('✅ Data sent to hardware'))
       .catch(err => console.error('❌ Error sending to hardware:', err.message));
