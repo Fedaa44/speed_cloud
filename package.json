@@ -1,12 +1,22 @@
 {
-  "name": "speed-cloud-backend",
+  "name": "speed-cloud-server",
   "version": "1.0.0",
+  "description": "Cloud server to handle GPS data and forward to mobile and hardware",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
+  "keywords": [
+    "express",
+    "gps",
+    "cloud",
+    "speed",
+    "violation"
+  ],
+  "author": "Fedaa44",
+  "license": "MIT",
   "dependencies": {
-    "axios": "^1.10.0",
+    "axios": "^1.6.0",
     "express": "^4.18.2"
   }
 }
